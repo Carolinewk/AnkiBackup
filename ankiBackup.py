@@ -4,13 +4,12 @@ from google_drive import upload, create_folder
 
 
 # se AnkiBackup não existir, criar. tem q listar as pastas no google drive primeiro
-#create_folder("AnkiBackup")
+# create_folder("AnkiBackup")
 
 pathInEnv = os.getenv("FILE_PATH")
 if pathInEnv:
     filePath = pathInEnv
 else:
-    
     appdata_roaming = os.getenv("APPDATA")
     home_dir = os.path.expanduser("~")
     local_dir = os.path.join(home_dir, ".local")
@@ -28,7 +27,7 @@ for ankiUser in ankiUsers:
         checkBackup = os.listdir(f"{filePath}/{ankiUser}")
         if "backups" in checkBackup:
             listOfUsers.append(ankiUser)
-    except:
+    except NotADirectoryError:
         continue
 
 getAllLastBackups = {}
@@ -40,4 +39,6 @@ for user in listOfUsers:
 for user, backupName in getAllLastBackups.items():
     if os.name == "nt":
         lastBackup = backupName.replace("/", "\\")
-    upload("1tlIomPv-xuKEDInWtglioci4wtHIBra1", [lastBackup]) # mudar para pegar o "AnkiBackup" folder id
+    upload(
+        "1tlIomPv-xuKEDInWtglioci4wtHIBra1", [lastBackup]
+    )  # mudar para pegar o "AnkiBackup" folder id
