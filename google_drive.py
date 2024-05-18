@@ -53,13 +53,17 @@ SCOPES = ["https://www.googleapis.com/auth/drive"]
 service = create_service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
 
 
-def upload(folder_id: str, file_names: list[str], mime_types=list[str]):
+def upload(
+    folder_id: str,
+    file_names: list[str],
+    mime_types=["application / vnd.google - apps.file"],
+):
     """Upload files to a folder in Gdrive"""
 
     for file_name, mime_type in zip(file_names, mime_types):
         file_metadata = {"name": file_name, "parents": [folder_id]}
 
-    media = MediaFileUpload("./files/{0}".format(file_name), mimetype=mime_type)
+    media = MediaFileUpload("{0}".format(file_name), mimetype=mime_type)
 
     service.files().create(body=file_metadata, media_body=media, fields="id").execute()
 
