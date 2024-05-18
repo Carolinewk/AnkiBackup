@@ -1,5 +1,5 @@
 import os
-
+from google_drive import upload
 # py autogi
 
 appdata_roaming = os.getenv("APPDATA")
@@ -11,7 +11,7 @@ if pathInEnv:
     filePath = pathInEnv
 else:
     if os.name == "nt":
-        filePath = f"{appdata_roaming}\Anki2"
+        filePath = f"{appdata_roaming}/Anki2"
     elif os.name == "posix":
         filePath = f"{local_dir}/share/Anki2"
 
@@ -30,8 +30,8 @@ for ankiUser in ankiUsers:
 getAllLastBackups = {}
 
 for user in listOfUsers:
-    filepath = os.listdir(f"{filePath}\{ankiUser}\\backups")
-    getAllLastBackups[user] = filepath[-1]
+    filepath = os.listdir(f"{filePath}/{user}/backups")
+    getAllLastBackups[user] = f"{filePath}/{user}/backups/{filepath[-1]}"
 
 for user, backupName in getAllLastBackups.items():
-    pass
+    upload("1DKJl8bjN7nZaB-8-nrxMZciFg_D_zfT2", [backupName])

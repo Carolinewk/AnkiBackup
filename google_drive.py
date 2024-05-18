@@ -68,5 +68,5 @@ def upload(
     service.files().create(body=file_metadata, media_body=media, fields="id").execute()
 
 
-folder_id = "1DKJl8bjN7nZaB-8-nrxMZciFg_D_zfT2"
-upload(folder_id, ["README.md"])
+# folder_id = "1DKJl8bjN7nZaB-8-nrxMZciFg_D_zfT2"
+# upload(folder_id, ["README.md"])
