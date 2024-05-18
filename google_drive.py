@@ -13,7 +13,6 @@ def create_service(client_secret_file, api_name, api_version, *scopes):
     API_SERVICE_NAME = api_name
     API_VERSION = api_version
     SCOPES = scopes[0]  # [scopes for scope in scopes]
-    print(SCOPES)
 
     cred = None
     pickle_file = f"token_{API_SERVICE_NAME}_{API_VERSION}.pickle"
@@ -44,7 +43,10 @@ def create_service(client_secret_file, api_name, api_version, *scopes):
 
 # "client_secret"
 
-CLIENT_SECRET_FILE = "client_secret_566868905417-g3difppfkga03a99hdvofmnguokj4hgn.apps.googleusercontent.com.json"
+# nebuzoka
+#CLIENT_SECRET_FILE = "client_secret_566868905417-g3difppfkga03a99hdvofmnguokj4hgn.apps.googleusercontent.com.json"
+CLIENT_SECRET_FILE= "client_secret_860763931823-ormt3p4dh5r6gfs2fb9pgq9186ocmnms.apps.googleusercontent.com.json"
+
 API_NAME = "drive"
 API_VERSION = "v3"
 SCOPES = ["https://www.googleapis.com/auth/drive"]
@@ -68,5 +70,12 @@ def upload(
     service.files().create(body=file_metadata, media_body=media, fields="id").execute()
 
 
-# folder_id = "1DKJl8bjN7nZaB-8-nrxMZciFg_D_zfT2"
-# upload(folder_id, ["README.md"])
+def create_folder(folder_name):
+
+    file_metadata = {
+        'name': folder_name,
+        'mimeType': 'application/vnd.google-apps.folder'
+    }
+
+    folder = service.files().create(body=file_metadata, fields='id').execute()
+    return folder['id']
