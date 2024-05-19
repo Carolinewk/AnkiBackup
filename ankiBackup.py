@@ -1,22 +1,20 @@
 import os
-from google_drive import upload, create_folder
+from google_drive import upload, createFolder, verifyAnkiBackupFolder, listFolders
+from pathlib import Path
 # py autogi
 
-
-# se AnkiBackup não existir, criar. tem q listar as pastas no google drive primeiro
-# create_folder("AnkiBackup")
 
 pathInEnv = os.getenv("FILE_PATH")
 if pathInEnv:
     filePath = pathInEnv
 else:
-    appdata_roaming = os.getenv("APPDATA")
-    home_dir = os.path.expanduser("~")
-    local_dir = os.path.join(home_dir, ".local")
     if os.name == "nt":
-        filePath = f"{appdata_roaming}/Anki2"
+        appdata = Path(os.getenv("APPDATA"))
+        filePath = appdata / "Anki2"
     elif os.name == "posix":
-        filePath = f"{local_dir}/share/Anki2"
+        home_dir = os.path.expanduser("~")
+        local_dir = Path(os.path.join(home_dir, ".local"))
+        filePath = local_dir / "share" / "Anki2"
 
 ankiUsers = os.listdir(filePath)
 
@@ -24,7 +22,8 @@ listOfUsers = []
 
 for ankiUser in ankiUsers:
     try:
-        checkBackup = os.listdir(f"{filePath}/{ankiUser}")
+        userPath = filePath / ankiUser  # type: ignore
+        checkBackup = os.listdir(userPath)
         if "backups" in checkBackup:
             listOfUsers.append(ankiUser)
     except NotADirectoryError:
@@ -33,12 +32,16 @@ for ankiUser in ankiUsers:
 getAllLastBackups = {}
 
 for user in listOfUsers:
-    filepath = os.listdir(f"{filePath}/{user}/backups")
-    getAllLastBackups[user] = f"{filePath}/{user}/backups/{filepath[-1]}"
+    userPathBackup = filePath / user / "backups"
+    listBackups = os.listdir(userPathBackup)
+    getAllLastBackups[user] = userPathBackup / listBackups[-1]
+
+folders = listFolders()
+
+folderId = verifyAnkiBackupFolder(folders)
+
+if folderId is None:
+    folderId = createFolder("ankiBackup")
 
 for user, backupName in getAllLastBackups.items():
-    if os.name == "nt":
-        lastBackup = backupName.replace("/", "\\")
-    upload(
-        "1tlIomPv-xuKEDInWtglioci4wtHIBra1", [lastBackup]
-    )  # mudar para pegar o "AnkiBackup" folder id
+    upload(folderId, [str(backupName)])

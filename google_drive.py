@@ -47,9 +47,9 @@ SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 # lista pasta atual e encontra arquivo client secret
 CLIENT_SECRET_FILE = ""
-home_dir = os.getcwd()
-files_in_home_dir = os.listdir(home_dir)
-for file in files_in_home_dir:
+homeDir = os.getcwd()
+filesInHomeDir = os.listdir(homeDir)
+for file in filesInHomeDir:
     if "client_secret" in file:
         CLIENT_SECRET_FILE = file
 
@@ -62,27 +62,47 @@ service = create_service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
 
 
 def upload(
-    folder_id: str,
-    file_names: list[str],
-    mime_types=["application / vnd.google - apps.file"],
+    folderId: str,
+    fileNames: list[str],
+    mimeTypes=["application / vnd.google - apps.file"],
 ):
     """Upload files to a folder in Gdrive"""
 
-    for file_name, mime_type in zip(file_names, mime_types):
-        file_metadata = {"name": file_name, "parents": [folder_id]}
+    for fileName, mimeType in zip(fileNames, mimeTypes):
+        fileMetadata = {"name": fileName, "parents": [folderId]}
 
-    media = MediaFileUpload("{0}".format(file_name), mimetype=mime_type)
+    media = MediaFileUpload("{0}".format(fileName), mimetype=mimeType)
 
     assert service is not None
-    service.files().create(body=file_metadata, media_body=media, fields="id").execute()
+    service.files().create(body=fileMetadata, media_body=media, fields="id").execute()
 
 
-def create_folder(folder_name):
-    file_metadata = {
-        "name": folder_name,
+def createFolder(folderName):
+    fileMetadata = {
+        "name": folderName,
         "mimeType": "application/vnd.google-apps.folder",
     }
 
     assert service is not None
-    folder = service.files().create(body=file_metadata, fields="id").execute()
+    folder = service.files().create(body=fileMetadata, fields="id").execute()
     return folder["id"]
+
+
+def listFolders():
+    assert service is not None
+    results = (
+        service.files()
+        .list(
+            q="'root' in parents and trashed = False",
+            spaces="drive",
+            fields="nextPageToken, files(id, name)",
+        )
+        .execute()
+    )
+    return results
+
+
+def verifyAnkiBackupFolder(results):
+    for folder in results["files"]:
+        if "ankiBackup" in folder["name"]:
+            return folder.get("id")
