@@ -37,11 +37,24 @@ for user in listOfUsers:
     getAllLastBackups[user] = userPathBackup / listBackups[-1]
 
 folders = listFolders()
-
 folderId = verifyAnkiBackupFolder(folders)
 
 if folderId is None:
     folderId = createFolder("ankiBackup")
+
+ankiBackUpFolders = listFolders(folderId)
+
+users_in_backup_folder = []
+
+for file in ankiBackUpFolders['files']:
+    users_in_backup_folder.append(file['name'])
+
+userFoldersId = {}
+for user in listOfUsers:
+    if user not in users_in_backup_folder:
+        userFolderId = createFolder(user, folderId)
+        userFoldersId['user'] = userFolderId
+            
 
 for user, backupName in getAllLastBackups.items():
     upload(folderId, [str(backupName)])

@@ -77,10 +77,12 @@ def upload(
     service.files().create(body=fileMetadata, media_body=media, fields="id").execute()
 
 
-def createFolder(folderName):
+def createFolder(folderName, ankiBackUpId=None):
+
     fileMetadata = {
         "name": folderName,
         "mimeType": "application/vnd.google-apps.folder",
+        "parents" : [ankiBackUpId]
     }
 
     assert service is not None
@@ -88,12 +90,18 @@ def createFolder(folderName):
     return folder["id"]
 
 
-def listFolders():
+def listFolders(folderId = None):
     assert service is not None
+
+    if not folderId:
+        query = "'root' in parents and trashed = False"
+    else: 
+        query = f"parents = '{folderId}'"
+
     results = (
         service.files()
         .list(
-            q="'root' in parents and trashed = False",
+            q=query,
             spaces="drive",
             fields="nextPageToken, files(id, name)",
         )
