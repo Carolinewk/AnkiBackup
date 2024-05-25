@@ -2,4 +2,3 @@ client_secret*
 token_drive_v3*
 anki_backup*
 __pycache__/*
-__pycache__/google_drive.cpython-310.pyc
