@@ -9,7 +9,7 @@ from google_auth_oauthlib.flow import Flow, InstalledAppFlow
 
 
 def create_service(client_secret_file, api_name, api_version, *scopes):
-    CLIENT_SECRET_FILE = ""  # client_secret_file
+    CLIENT_SECRET_FILE = client_secret_file
     API_SERVICE_NAME = api_name
     API_VERSION = api_version
     SCOPES = scopes[0]  # [scopes for scope in scopes]
