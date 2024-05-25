@@ -4,7 +4,7 @@ from googleapiclient import discovery
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
-from google_auth_oauthlib.flow import Flow, InstalledAppFlow
+from google_auth_oauthlib.flow import InstalledAppFlow
 
 
 def create_service(client_secret_file, api_name, api_version, *scopes):
