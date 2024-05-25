@@ -29,13 +29,6 @@ for ankiUser in ankiUsers:
     except NotADirectoryError:
         continue
 
-getAllLastBackups = {}
-
-for user in listOfUsers:
-    userPathBackup = filePath / user / "backups"
-    listBackups = os.listdir(userPathBackup)
-    getAllLastBackups[user] = userPathBackup / listBackups[-1]
-
 folders = listFolders()
 folderId = verifyAnkiBackupFolder(folders)
 
@@ -49,12 +42,18 @@ users_in_backup_folder = []
 for file in ankiBackUpFolders['files']:
     users_in_backup_folder.append(file['name'])
 
-userFoldersId = {}
+getAllLastBackups = {}
+usersFolderId = {}
+
 for user in listOfUsers:
+    userPathBackup = filePath / user / "backups"
+    listBackups = os.listdir(userPathBackup)
+    getAllLastBackups[user] = userPathBackup / listBackups[-1]
     if user not in users_in_backup_folder:
-        userFolderId = createFolder(user, folderId)
-        userFoldersId['user'] = userFolderId
-            
+        userFolder = createFolder(user, folderId)
+        usersFolderId[user] = userFolder
+
 
 for user, backupName in getAllLastBackups.items():
+    folderId = getAllLastBackups['folderId']
     upload(folderId, [str(backupName)])
