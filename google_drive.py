@@ -2,7 +2,6 @@ import os
 import pickle
 from googleapiclient import discovery
 from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import Flow, InstalledAppFlow
@@ -63,41 +62,56 @@ service = create_service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
 
 
 def upload(
-    folderId: str,
-    fileNames: list[str],
-    mimeTypes=["application / vnd.google - apps.file"],
+    folder_id: str,
+    file_names: list[str],
+    mime_types=["application / vnd.google - apps.file"],
 ):
     """Upload files to a folder in Gdrive"""
 
-    for fileName, mimeType in zip(fileNames, mimeTypes):
-        fileName = os.path.basename(fileName)
-        fileMetadata = {"name": fileName, "parents": [folderId]}
+    for file_name, mime_type in zip(file_names, mime_types):
+        file_metadata = {
+            "name": file_name,
+            "parents": [folder_id],
+        }
 
-    media = MediaFileUpload("{0}".format(fileName), mimetype=mimeType)
+    media = MediaFileUpload("{0}".format(file_name), mimetype=mime_type)
 
     assert service is not None
-    service.files().create(body=fileMetadata, media_body=media, fields="id").execute()
+    file_id = (
+        service.files()
+        .create(body=file_metadata, media_body=media, fields="id")
+        .execute()
+    )
+
+    return file_id
 
 
-def createFolder(folderName, ankiBackUpId=None):
-    fileMetadata = {
-        "name": folderName,
+def rename(file_id, file_name):
+    body = {"name": file_name}
+
+    assert service is not None
+    service.files().update(fileId=file_id, body=body, fields="id, name").execute()
+
+
+def create_folder(folder_name, anki_backup_id=None):
+    file_metadata = {
+        "name": folder_name,
         "mimeType": "application/vnd.google-apps.folder",
-        "parents": [ankiBackUpId],
+        "parents": [anki_backup_id],
     }
 
     assert service is not None
-    folder = service.files().create(body=fileMetadata, fields="id").execute()
+    folder = service.files().create(body=file_metadata, fields="id").execute()
     return folder["id"]
 
 
-def listFolders(folderId=None):
+def list_folders(folder_id=None):
     assert service is not None
 
-    if not folderId:
+    if not folder_id:
         query = "'root' in parents and trashed = False"
     else:
-        query = f"parents = '{folderId}'"
+        query = f"parents = '{folder_id}'"
 
     results = (
         service.files()
@@ -111,7 +125,7 @@ def listFolders(folderId=None):
     return results
 
 
-def verifyAnkiBackupFolder(results):
+def verify_anki_backup_folder(results):
     for folder in results["files"]:
         if "ankiBackup" in folder["name"]:
             return folder.get("id")

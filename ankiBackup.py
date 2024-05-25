@@ -1,6 +1,13 @@
 import os
-from google_drive import upload, createFolder, verifyAnkiBackupFolder, listFolders
+from google_drive import (
+    create_folder,
+    list_folders,
+    rename,
+    upload,
+    verify_anki_backup_folder,
+)
 from pathlib import Path
+from googleapiclient.errors import HttpError
 # py autogi
 
 
@@ -29,13 +36,13 @@ for ankiUser in ankiUsers:
     except NotADirectoryError:
         continue
 
-folders = listFolders()
-folderId = verifyAnkiBackupFolder(folders)
+folders = list_folders()
+folderId = verify_anki_backup_folder(folders)
 
 if folderId is None:
-    folderId = createFolder("ankiBackup")
+    folderId = create_folder("ankiBackup")
 
-ankiBackUpFolders = listFolders(folderId)
+ankiBackUpFolders = list_folders(folderId)
 
 users_in_backup_folder = {}
 
@@ -50,7 +57,7 @@ for user in listOfUsers:
     listBackups = os.listdir(userPathBackup)
     getAllLastBackups[user] = userPathBackup / listBackups[-1]
     if user not in users_in_backup_folder:
-        userFolder = createFolder(user, folderId)
+        userFolder = create_folder(user, folderId)
         usersFolderId[user] = userFolder
     else:
         usersFolderId[user] = users_in_backup_folder[user]
@@ -58,4 +65,10 @@ for user in listOfUsers:
 
 for user, backupName in getAllLastBackups.items():
     folderId = usersFolderId[user]
-    upload(folderId, [str(backupName)])
+    fileName = os.path.basename(backupName)
+    try:
+        fileId = upload(folderId, [str(backupName)])
+        rename(fileId["id"], fileName)
+    except HttpError as e:
+        print(e)
+        continue
