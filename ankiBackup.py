@@ -37,10 +37,10 @@ if folderId is None:
 
 ankiBackUpFolders = listFolders(folderId)
 
-users_in_backup_folder = []
+users_in_backup_folder = {}
 
-for file in ankiBackUpFolders['files']:
-    users_in_backup_folder.append(file['name'])
+for file in ankiBackUpFolders["files"]:
+    users_in_backup_folder[file["name"]] = file["id"]
 
 getAllLastBackups = {}
 usersFolderId = {}
@@ -52,8 +52,10 @@ for user in listOfUsers:
     if user not in users_in_backup_folder:
         userFolder = createFolder(user, folderId)
         usersFolderId[user] = userFolder
+    else:
+        usersFolderId[user] = users_in_backup_folder[user]
 
 
 for user, backupName in getAllLastBackups.items():
-    folderId = getAllLastBackups['folderId']
+    folderId = usersFolderId[user]
     upload(folderId, [str(backupName)])

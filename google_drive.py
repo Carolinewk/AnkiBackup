@@ -52,6 +52,7 @@ filesInHomeDir = os.listdir(homeDir)
 for file in filesInHomeDir:
     if "client_secret" in file:
         CLIENT_SECRET_FILE = file
+        break
 
 if not CLIENT_SECRET_FILE:
     CLIENT_SECRET_FILE = input(
@@ -69,6 +70,7 @@ def upload(
     """Upload files to a folder in Gdrive"""
 
     for fileName, mimeType in zip(fileNames, mimeTypes):
+        fileName = os.path.basename(fileName)
         fileMetadata = {"name": fileName, "parents": [folderId]}
 
     media = MediaFileUpload("{0}".format(fileName), mimetype=mimeType)
@@ -78,11 +80,10 @@ def upload(
 
 
 def createFolder(folderName, ankiBackUpId=None):
-
     fileMetadata = {
         "name": folderName,
         "mimeType": "application/vnd.google-apps.folder",
-        "parents" : [ankiBackUpId]
+        "parents": [ankiBackUpId],
     }
 
     assert service is not None
@@ -90,12 +91,12 @@ def createFolder(folderName, ankiBackUpId=None):
     return folder["id"]
 
 
-def listFolders(folderId = None):
+def listFolders(folderId=None):
     assert service is not None
 
     if not folderId:
         query = "'root' in parents and trashed = False"
-    else: 
+    else:
         query = f"parents = '{folderId}'"
 
     results = (
@@ -114,3 +115,9 @@ def verifyAnkiBackupFolder(results):
     for folder in results["files"]:
         if "ankiBackup" in folder["name"]:
             return folder.get("id")
+
+
+upload(
+    "1Q2HcZ1Byafr65j8DtmeGkIWx2xTEm-44",
+    ["/home/thiago/Documents/tmp/python/AnkiBackup/AnkiBackup/teste.txt"],
+)
