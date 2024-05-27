@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+from googleapiclient.errors import HttpError
 from google_drive import (
     create_folder,
     list_folders,
@@ -6,8 +8,6 @@ from google_drive import (
     upload,
     verify_anki_backup_folder,
 )
-from pathlib import Path
-from googleapiclient.errors import HttpError
 # py autogi
 
 
