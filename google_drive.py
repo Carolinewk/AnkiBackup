@@ -1,12 +1,12 @@
 import os
 import pickle
-
 import pathlib
 from googleapiclient import discovery
 from googleapiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 
+homeDir = pathlib.Path(__file__).parent.resolve()
 
 def create_service(client_secret_file, api_name, api_version, *scopes):
     CLIENT_SECRET_FILE = client_secret_file
@@ -15,7 +15,7 @@ def create_service(client_secret_file, api_name, api_version, *scopes):
     SCOPES = scopes[0]  # [scopes for scope in scopes]
 
     cred = None
-    pickle_file = f"token_{API_SERVICE_NAME}_{API_VERSION}.pickle"
+    pickle_file = homeDir / f"token_{API_SERVICE_NAME}_{API_VERSION}.pickle"
 
     if os.path.exists(pickle_file):
         with open(pickle_file, "rb") as token:
@@ -47,8 +47,9 @@ SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 # lista pasta atual e encontra arquivo client secret
 CLIENT_SECRET_FILE = ""
-homeDir = pathlib.Path(__file__).parent.resolve()
 filesInHomeDir = os.listdir(homeDir)
+
+
 for file in filesInHomeDir:
     if "client_secret" in file:
         CLIENT_SECRET_FILE = file
@@ -59,8 +60,7 @@ if not CLIENT_SECRET_FILE:
         "Credenciais não encontradas. Indique o caminho para o arquivo: "
     )
 
-service = create_service(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)
-
+service = create_service(f"{homeDir}/{CLIENT_SECRET_FILE}", API_NAME, API_VERSION, SCOPES)
 
 def upload(
     folder_id: str,
