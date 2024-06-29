@@ -1,7 +1,7 @@
 import os
 import pickle
 
-# from googleapiclient.discovery import build
+import pathlib
 from googleapiclient import discovery
 from googleapiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
@@ -47,7 +47,7 @@ SCOPES = ["https://www.googleapis.com/auth/drive"]
 
 # lista pasta atual e encontra arquivo client secret
 CLIENT_SECRET_FILE = ""
-homeDir = os.getcwd()
+homeDir = pathlib.Path(__file__).parent.resolve()
 filesInHomeDir = os.listdir(homeDir)
 for file in filesInHomeDir:
     if "client_secret" in file:
